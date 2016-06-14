@@ -9,11 +9,14 @@ SCRIPT_DIR=$(dirname $0)
 source "$SCRIPT_DIR/config"
 
 function bootstrap {
+    # Make in-ram new root
     rm -rf "$ROOTFS"
     mkdir -p "$ROOTFS"
     mount -t tmpfs -o size="$TMPFS_SIZE" none "$ROOTFS"
+
+    # Packages required for building rootfs
     apt-get update
-    apt-get install -y curl
+    apt-get install -y --no-install-recommends curl ca-certificates
 
     apt-get download \
         busybox \
@@ -21,6 +24,7 @@ function bootstrap {
         ca-certificates \
         libgcc1
 
+    # Installing dumb-init and downloaded debs
     curl -o dumb-init.deb -L "$DUMBINIT_URL"
 
     for pkg in *.deb; do
@@ -29,12 +33,16 @@ function bootstrap {
 
     chroot "$ROOTFS/" /bin/busybox --install /bin
 
+    # Collecting certificates from ca-certificates package to one file
     find "$ROOTFS/usr/share/ca-certificates" -name '*.crt' \
         | xargs cat > "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
+
+    cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 }
 
 function cleanup {
-    rm -rf "$ROOTFS/usr/share/"
+    # cleanup.sh must be called ONBUILD too, DRY
+    chroot "$ROOTFS" /bin/sh -c 'test -f /cleanup.sh && sh /cleanup.sh'
 }
 
 function output {

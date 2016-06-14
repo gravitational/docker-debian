@@ -17,11 +17,24 @@ manager is present.
 
 Contains cut debootstrapped system (`minbase` variant). `dpkg` works here.
 
-*57Mb approx.*
+*60Mb approx.*
 
 ## Debian Venti
 
 Image with Go build environment. Batteries included.
 
-*600Mb approx.*
+*610Mb approx.*
 
+## Usage
+
+```shell
+make debian-tall
+make debian-grande
+make debian-venti
+```
+
+Also, if you have caching http-proxy you can use it in build:
+
+```shell
+http_proxy=http://proxy.addr.ess:port make debian-tall
+```
