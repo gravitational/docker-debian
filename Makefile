@@ -18,7 +18,7 @@ debian-tall:
 	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
 		bash /build/tall/build.sh > tall.tar
 	docker import \
-		--change 'ONBUILD /bin/sh -c "test -x /cleanup.sh && sh /cleanup.sh"' \
+		--change 'ONBUILD RUN test -f /cleanup.sh && sh /cleanup.sh' \
 		tall.tar debian-tall:$(DEBIAN_TALL_VERSION)
 
 .PHONY: debian-grande
@@ -27,7 +27,7 @@ debian-grande:
 	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
 		bash /build/grande/build.sh > grande.tar
 	docker import \
-		--change 'ONBUILD /bin/sh -c "test -x /cleanup.sh && sh /cleanup.sh"' \
+		--change 'ONBUILD RUN test -f /cleanup.sh && sh /cleanup.sh' \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
 		grande.tar debian-grande:$(DEBIAN_GRANDE_VERSION)
 
@@ -37,11 +37,11 @@ debian-venti:
 	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
 		bash /build/venti/build.sh > venti.tar
 	docker import \
-		--change 'ONBUILD /bin/sh -c "test -x /cleanup.sh && sh /cleanup.sh"' \
+		--change 'ONBUILD RUN test -f /cleanup.sh && sh /cleanup.sh' \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
-		--change "ENV GOROOT /go" \
-		--change "ENV GOPATH /gocode" \
-		--change "ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin:/gocode/bin" \
+		--change 'ENV GOROOT /go' \
+		--change 'ENV GOPATH /gocode' \
+		--change 'ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin:/gocode/bin' \
 		venti.tar debian-venti:$(DEBIAN_VENTI_VERSION)
 
 .PHONY: syntax-check

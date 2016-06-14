@@ -16,9 +16,9 @@ function bootstrap {
 
     # Packages required for building rootfs
     apt-get update
-    apt-get install -y --no-install-recommends debootstrap curl ca-certificates
+    apt-get install -y --no-install-recommends cdebootstrap curl ca-certificates
 
-    debootstrap --variant="$VARIANT" --include="$VENTI_INCLUDE" \
+    cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
         "$SUITE" "$ROOTFS" "$MIRROR"
 
     # Installing dumb-init
