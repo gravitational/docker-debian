@@ -50,7 +50,6 @@ function cleanup {
         libtext-charwidth-perl \
         libtext-iconv-perl \
         libtext-wrapi18n-perl \
-        login \
         systemd \
         systemd-sysv \
         udev
