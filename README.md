@@ -1,5 +1,17 @@
 # Customized Docker Debian images
 
+## Customizations
+
+All images shipped with (dumb-init)[https://github.com/Yelp/dumb-init].
+Main purpose for it is to get rid of zombies and proper passing of signals
+into container.
+
+There're also special cleaning script for each image. If you want to keep your
+image slim, you should do this at the end of your Dockerfile:
+```dockerfile
+RUN test -f /clean.sh && sh /clean.sh
+```
+
 ## Debian Tall [![Docker Repository on Quay](https://quay.io/repository/gravitational/debian-tall/status "Docker Repository on Quay")](https://quay.io/repository/gravitational/debian-tall)
 
 Contains:
@@ -31,6 +43,12 @@ Image with Go build environment. Batteries included.
 make debian-tall
 make debian-grande
 make debian-venti
+```
+
+or simply
+
+```shell
+make all
 ```
 
 Also, if you have caching http-proxy you can use it in build:
