@@ -1,6 +1,6 @@
 # Customized Docker Debian images
 
-## Debian Tall
+## Debian Tall [![Docker Repository on Quay](https://quay.io/repository/gravitational/debian-tall/status "Docker Repository on Quay")](https://quay.io/repository/gravitational/debian-tall)
 
 Contains:
 
@@ -13,13 +13,13 @@ manager is present.
 
 *11Mb approx.*
 
-## Debian Grande
+## Debian Grande [![Docker Repository on Quay](https://quay.io/repository/gravitational/debian-grande/status "Docker Repository on Quay")](https://quay.io/repository/gravitational/debian-grande)
 
 Contains cut debootstrapped system (`minbase` variant). `dpkg` works here.
 
 *60Mb approx.*
 
-## Debian Venti
+## Debian Venti [![Docker Repository on Quay](https://quay.io/repository/gravitational/debian-venti/status "Docker Repository on Quay")](https://quay.io/repository/gravitational/debian-venti)
 
 Image with Go build environment. Batteries included.
 
