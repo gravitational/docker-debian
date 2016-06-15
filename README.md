@@ -2,7 +2,7 @@
 
 ## Customizations
 
-All images shipped with (dumb-init)[https://github.com/Yelp/dumb-init].
+All images shipped with [dumb-init](https://github.com/Yelp/dumb-init).
 Main purpose for it is to get rid of zombies and proper passing of signals
 into container.
 
