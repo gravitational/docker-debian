@@ -2,12 +2,12 @@
 
 ## Customizations
 
-All images shipped with [dumb-init](https://github.com/Yelp/dumb-init).
-Main purpose for it is to get rid of zombies and proper passing of signals
+All images are shipped with [dumb-init](https://github.com/Yelp/dumb-init).
+The main purpose of it is to manage zombie processes and properly pass signals
 into container.
 
-There're also special cleaning script for each image. If you want to keep your
-image slim, you should do this at the end of your Dockerfile:
+There are also special cleaning script for each image. If you want to keep your
+image slim, add this to the end of your Dockerfile:
 ```dockerfile
 RUN test -f /clean.sh && sh /clean.sh
 ```
