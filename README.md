@@ -9,7 +9,7 @@ into container.
 There are also special cleaning script for each image. If you want to keep your
 image slim, add this to the end of your Dockerfile:
 ```dockerfile
-RUN test -f /clean.sh && sh /clean.sh
+RUN test -f /cleanup.sh && sh /cleanup.sh
 ```
 
 ## Debian Tall [![Docker Repository on Quay](https://quay.io/repository/gravitational/debian-tall/status "Docker Repository on Quay")](https://quay.io/repository/gravitational/debian-tall)
