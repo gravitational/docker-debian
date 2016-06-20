@@ -4,6 +4,8 @@ DEBIAN_TALL_VERSION ?= 0.0.1
 DEBIAN_GRANDE_VERSION ?= 0.0.1
 DEBIAN_VENTI_VERSION ?= 0.0.1
 
+REGISTRY ?= quay.io/gravitational
+
 DOCKER_COMMON_OPTS = --rm --privileged \
 	-e DEBIAN_FRONTEND=noninteractive \
 	-e http_proxy=$(http_proxy) \
@@ -11,6 +13,9 @@ DOCKER_COMMON_OPTS = --rm --privileged \
 
 .PHONY: all
 all: debian-tall debian-grande debian-venti
+
+.PHONY: images
+images: debian-tall debian-grande debian-venti
 
 .PHONY: debian-tall
 debian-tall:
@@ -44,4 +49,19 @@ debian-venti:
 .PHONY: syntax-check
 syntax-check:
 	find . -name '*.sh' | xargs bashate -v
+
+.PHONY: push
+push: images
+	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:$(DEBIAN_TALL_VERSION)
+	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:latest
+	docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:$(DEBIAN_GRANDE_VERSION)
+	docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:latest
+	docker tag debian-venti:$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VENTI_VERSION)
+	docker tag debian-venti:$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:latest
+	docker push $(REGISTRY)/debian-tall:$(DEBIAN_TALL_VERSION)
+	docker push $(REGISTRY)/debian-tall:latest
+	docker push $(REGISTRY)/debian-grande:$(DEBIAN_GRANDE_VERSION)
+	docker push $(REGISTRY)/debian-grande:latest
+	docker push $(REGISTRY)/debian-venti:$(DEBIAN_VENTI_VERSION)
+	docker push $(REGISTRY)/debian-venti:latest
 
