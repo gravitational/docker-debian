@@ -26,6 +26,7 @@ function bootstrap {
     dpkg --root "$ROOTFS" -i dumb-init.deb
 
     # Setup golang building environment and godep
+    apt-get install -y --no-install-recommends make
     curl -o go-linux.tar.gz -L "$GOLANG_URL"
     tar -xf go-linux.tar.gz -C "$ROOTFS"
     chroot "$ROOTFS" /bin/bash -c 'GOROOT=/go GOPATH=/gocode PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin go get github.com/tools/godep'
