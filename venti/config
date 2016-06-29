@@ -5,4 +5,4 @@ DUMBINIT_URL=${DUMBINIT_URL:-https://github.com/Yelp/dumb-init/releases/download
 GOLANG_URL=${GOLANG_URL:-https://storage.googleapis.com/golang/go1.5.4.linux-amd64.tar.gz}
 TMPFS_SIZE=${TMPFS_SIZE:-1073741824}
 
-BOOTSTRAP_INCLUDE=${BOOTSTRAP_INCLUDE:-ca-certificates,less,locales,inetutils-ping,iproute2,git,gcc}
+BOOTSTRAP_INCLUDE=${BOOTSTRAP_INCLUDE:-ca-certificates,less,locales,inetutils-ping,iproute2,git,gcc,make}
