@@ -51,7 +51,7 @@ syntax-check:
 	find . -name '*.sh' | xargs bashate -v
 
 .PHONY: push
-push: images
+push:
 	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:$(DEBIAN_TALL_VERSION)
 	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:latest
 	docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:$(DEBIAN_GRANDE_VERSION)
