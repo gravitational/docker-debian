@@ -2,5 +2,5 @@
 
 set -e
 
-rm -rf /usr/share/
+rm -rf -- /usr/share/
 

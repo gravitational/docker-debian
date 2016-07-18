@@ -4,7 +4,7 @@ set -e
 set -x
 
 ROOTFS=/rootfs/
-SCRIPT_DIR=$(dirname $0)
+SCRIPT_DIR=$(dirname "$0")
 
 source "$SCRIPT_DIR/config"
 
@@ -54,7 +54,7 @@ function cleanup {
 
 function output {
     cd "$ROOTFS"
-    tar --one-file-system --numeric-owner -cf - *
+    tar --one-file-system --numeric-owner -cf - ./*
 }
 
 function main {
