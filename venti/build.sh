@@ -21,6 +21,12 @@ function bootstrap {
     cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
         "$SUITE" "$ROOTFS" "$MIRROR"
 
+    # Disable sync after every package installed
+    echo 'force-unsafe-io' > "$ROOTFS/etc/dpkg/dpkg.cfg.d/02apt-speedup"
+
+    # Automatic apt-get clean after apt-get ops
+    echo 'DSELECT::Clean "always";' > "$ROOTFS/etc/apt/apt.conf.d/99AutomaticClean"
+
     # Installing dumb-init
     curl -o dumb-init.deb -L "$DUMBINIT_URL"
     dpkg --root "$ROOTFS" -i dumb-init.deb
