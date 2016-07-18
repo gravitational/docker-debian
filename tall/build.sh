@@ -4,7 +4,7 @@ set -e
 set -x
 
 ROOTFS=/rootfs
-SCRIPT_DIR=$(dirname $0)
+SCRIPT_DIR=$(dirname "$0")
 
 source "$SCRIPT_DIR/config"
 
@@ -34,8 +34,8 @@ function bootstrap {
     chroot "$ROOTFS/" /bin/busybox --install /bin
 
     # Collecting certificates from ca-certificates package to one file
-    find "$ROOTFS/usr/share/ca-certificates" -name '*.crt' \
-        | xargs cat > "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
+    find "$ROOTFS/usr/share/ca-certificates" -name '*.crt' -print0 \
+        | xargs -0 cat > "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
 
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 }
@@ -47,7 +47,7 @@ function cleanup {
 
 function output {
     cd "$ROOTFS"
-    tar --one-file-system --numeric-owner -cf - *
+    tar --one-file-system --numeric-owner -cf - ./*
 }
 
 function main {
