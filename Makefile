@@ -42,8 +42,8 @@ debian-venti:
 	docker import \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
 		--change 'ENV GOROOT /go' \
-		--change 'ENV GOPATH /gocode' \
-		--change 'ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin:/gocode/bin' \
+		--change 'ENV GOPATH /gopath' \
+		--change 'ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin:/gopath/bin' \
 		venti.tar debian-venti:$(DEBIAN_VENTI_VERSION)
 
 .PHONY: syntax-check
