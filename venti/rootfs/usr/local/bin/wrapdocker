@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+DOCKER_STORAGE_DRIVER=${DOCKER_STORAGE_DRIVER:-vfs}
+
 if [ "$#" -eq 0 ]; then
 	set -- docker daemon \
 		--host=unix:///var/run/docker.sock \
@@ -8,7 +10,7 @@ if [ "$#" -eq 0 ]; then
 		--insecure-registry=10.0.0.0/8 \
 		--insecure-registry=192.168.0.0/16 \
 		--insecure-registry=172.16.0.0/12 \
-		--storage-driver=vfs \
+		--storage-driver="$DOCKER_STORAGE_DRIVER" \
 		"$@"
 fi
 
