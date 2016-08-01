@@ -18,8 +18,7 @@ function bootstrap {
     apt-get update
     apt-get install -y --no-install-recommends cdebootstrap curl ca-certificates make
 
-    cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
-        "$SUITE" "$ROOTFS" "$MIRROR"
+    cdebootstrap --flavour="$FLAVOUR" "$SUITE" "$ROOTFS" "$MIRROR"
 
     # Disable sync after every package installed
     echo 'force-unsafe-io' > "$ROOTFS/etc/dpkg/dpkg.cfg.d/02apt-speedup"
@@ -27,9 +26,17 @@ function bootstrap {
     # Automatic apt-get clean after apt-get ops
     echo 'DSELECT::Clean "always";' > "$ROOTFS/etc/apt/apt.conf.d/99AutomaticClean"
 
+    # Installing packages
+    chroot "$ROOTFS" apt-get update
+    local pkgs=($PKG_INCLUDE)
+    chroot "$ROOTFS" apt-get install -y --no-install-recommends "${pkgs[@]}"
+
     # Installing dumb-init
     curl -o dumb-init.deb -L "$DUMBINIT_URL"
     dpkg --root "$ROOTFS" -i dumb-init.deb
+
+    # Installing useful Python modules
+    chroot "$ROOTFS" /bin/bash -c 'pip install awscli'
 
     # Setup golang building environment and godep
     curl -o go-linux.tar.gz -L "$GOLANG_URL"
