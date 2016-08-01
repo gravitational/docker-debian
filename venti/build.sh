@@ -16,7 +16,7 @@ function bootstrap {
 
     # Packages required for building rootfs
     apt-get update
-    apt-get install -y --no-install-recommends cdebootstrap curl ca-certificates make
+    apt-get install -y --no-install-recommends cdebootstrap curl ca-certificates
 
     cdebootstrap --flavour="$FLAVOUR" "$SUITE" "$ROOTFS" "$MIRROR"
 
