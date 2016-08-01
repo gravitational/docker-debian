@@ -3,5 +3,4 @@ MIRROR=${MIRROR:-http://httpredir.debian.org/debian}
 FLAVOUR=${FLAVOUR:-minimal}
 DUMBINIT_URL=${DUMBINIT_URL:-https://github.com/Yelp/dumb-init/releases/download/v1.0.3/dumb-init_1.0.3_amd64.deb}
 GOLANG_URL=${GOLANG_URL:-https://storage.googleapis.com/golang/go1.5.4.linux-amd64.tar.gz}
-TMPFS_SIZE=${TMPFS_SIZE:-1073741824}
 PKG_INCLUDE=${PKG_INCLUDE:-apt-transport-https ca-certificates curl gcc git inetutils-ping iproute2 iptables less libc6-dev locales make openssh-client psmisc python python-dev python-pip rsync sudo unzip vim-tiny wget}

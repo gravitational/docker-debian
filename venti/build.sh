@@ -12,7 +12,6 @@ function bootstrap {
     # Make in-ram new root
     rm -rf "$ROOTFS"
     mkdir -p "$ROOTFS"
-    mount -t tmpfs -o size="$TMPFS_SIZE" none "$ROOTFS"
 
     # Packages required for building rootfs
     apt-get update
