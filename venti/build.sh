@@ -37,11 +37,6 @@ function bootstrap {
     # Installing useful Python modules
     chroot "$ROOTFS" /bin/bash -c 'pip install awscli'
 
-    # Setup golang building environment and godep
-    curl -o go-linux.tar.gz -L "$GOLANG_URL"
-    tar -xf go-linux.tar.gz -C "$ROOTFS"
-    chroot "$ROOTFS" /bin/bash -c 'GOROOT=/go GOPATH=/gopath PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin go get github.com/tools/godep'
-
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
     # Install docker

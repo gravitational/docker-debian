@@ -1,8 +1,10 @@
 DEBIAN_VERSION ?= jessie
 
-DEBIAN_TALL_VERSION ?= 0.0.1
-DEBIAN_GRANDE_VERSION ?= 0.0.1
-DEBIAN_VENTI_VERSION ?= 0.0.1
+DEBIAN_TALL_VERSION ?= jessie
+DEBIAN_GRANDE_VERSION ?= jessie
+DEBIAN_VENTI_VERSION ?= jessie
+
+DEBIAN_VENTI_GOVERSIONS ?= 1.5.4 1.6.3 1.7
 
 REGISTRY ?= quay.io/gravitational
 
@@ -12,10 +14,10 @@ DOCKER_COMMON_OPTS = --rm --privileged \
 	-v $(shell pwd):/build:ro
 
 .PHONY: all
-all: debian-tall debian-grande debian-venti
+all: debian-tall debian-grande debian-venti debian-venti-go
 
 .PHONY: images
-images: debian-tall debian-grande debian-venti
+images: debian-tall debian-grande debian-venti debian-venti-go
 
 .PHONY: debian-tall
 debian-tall:
@@ -41,27 +43,33 @@ debian-venti:
 		bash /build/venti/build.sh > venti.tar
 	docker import \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
-		--change 'ENV GOROOT /go' \
-		--change 'ENV GOPATH /gopath' \
-		--change 'ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/go/bin:/gopath/bin' \
 		venti.tar debian-venti:$(DEBIAN_VENTI_VERSION)
+
+.PHONY: debian-venti-go
+debian-venti-go:
+	for goversion in $(DEBIAN_VENTI_GOVERSIONS) ; do \
+		docker rmi debian-venti:go$$goversion-$(DEBIAN_VENTI_VERSION) || true ; \
+		docker build --build-arg GOVERSION=$$goversion -t debian-venti:go$$goversion-$(DEBIAN_VENTI_VERSION) venti ; \
+	done
 
 .PHONY: syntax-check
 syntax-check:
-	find . -name '*.sh' | xargs bashate -v
+	find . -name '*.sh' | xargs shellcheck
 
 .PHONY: push
 push:
-	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:$(DEBIAN_TALL_VERSION)
-	docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:latest
-	docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:$(DEBIAN_GRANDE_VERSION)
-	docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:latest
-	docker tag debian-venti:$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VENTI_VERSION)
-	docker tag debian-venti:$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:latest
-	docker push $(REGISTRY)/debian-tall:$(DEBIAN_TALL_VERSION)
-	docker push $(REGISTRY)/debian-tall:latest
-	docker push $(REGISTRY)/debian-grande:$(DEBIAN_GRANDE_VERSION)
-	docker push $(REGISTRY)/debian-grande:latest
-	docker push $(REGISTRY)/debian-venti:$(DEBIAN_VENTI_VERSION)
-	docker push $(REGISTRY)/debian-venti:latest
-
+	for goversion in $(DEBIAN_VENTI_GOVERSIONS); do \
+		docker tag debian-venti:go$$goversion-$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VENTI_VERSION) && \
+		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VENTI_VERSION) ; \
+	done
+	# FIXME: for compatibility
+	docker tag debian-venti:go1.5.4-$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:0.0.1
+	docker tag debian-venti:go1.5.4-$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:latest
+	docker tag debian-venti:$(DEBIAN_VENTI_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_TALL_VERSION)
+	for version in 0.0.1 latest $(DEBIAN_TALL_VERSION); do \
+		docker tag debian-tall:$(DEBIAN_TALL_VERSION) $(REGISTRY)/debian-tall:$$version && \
+		docker tag debian-grande:$(DEBIAN_GRANDE_VERSION) $(REGISTRY)/debian-grande:$$version && \
+		docker push $(REGISTRY)/debian-tall:$$version && \
+		docker push $(REGISTRY)/debian-grande:$$version && \
+		docker push $(REGISTRY)/debian-venti:$$version ; \
+	done
