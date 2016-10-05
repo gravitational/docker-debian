@@ -46,6 +46,13 @@ function bootstrap {
     chroot "$ROOTFS" /usr/sbin/locale-gen
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
+
+    echo 'deb http://ftp.ru.debian.org/debian/ jessie main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://ftp.ru.debian.org/debian/ jessie-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.debian.org/ jessie/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+
+    chroot "$ROOTFS" /usr/bin/apt-get update
+    chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
 }
 
 function cleanup {
