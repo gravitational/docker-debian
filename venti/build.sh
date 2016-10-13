@@ -25,6 +25,9 @@ function bootstrap {
     # Automatic apt-get clean after apt-get ops
     echo 'DSELECT::Clean "always";' > "$ROOTFS/etc/apt/apt.conf.d/99AutomaticClean"
 
+    # Select default suite
+    echo "APT::Default-Release \"$SUITE\";" > "$ROOTFS/etc/apt/apt.conf.d/01defaultrelease"
+
     # Installing packages
     chroot "$ROOTFS" apt-get update
     local pkgs=($PKG_INCLUDE)
@@ -53,6 +56,13 @@ function bootstrap {
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
+
+    # Temporary fix for adding libc from stretch
+    echo 'deb http://httpredir.debian.org/debian/ stretch main' > "$ROOTFS/etc/apt/sources.list.d/stretch.list"
+    chroot "$ROOTFS" /usr/bin/apt-get update
+    chroot "$ROOTFS" /usr/bin/apt-get install libc6 multiarch-support -t stretch --yes
+    rm "$ROOTFS/etc/apt/sources.list.d/stretch.list"
+    chroot "$ROOTFS" /usr/bin/apt-get update
 }
 
 function cleanup {
