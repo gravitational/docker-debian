@@ -57,12 +57,15 @@ function bootstrap {
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
 
+    # Disabled -- compatibility issues
+    if false; then
     # Temporary fix for adding libc from stretch
     echo 'deb http://httpredir.debian.org/debian/ stretch main' > "$ROOTFS/etc/apt/sources.list.d/stretch.list"
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get install libc6 multiarch-support -t stretch --yes
     rm "$ROOTFS/etc/apt/sources.list.d/stretch.list"
     chroot "$ROOTFS" /usr/bin/apt-get update
+    fi
 }
 
 function cleanup {
