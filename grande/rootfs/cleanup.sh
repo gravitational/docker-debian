@@ -10,7 +10,7 @@ apt-get clean
 find /var/cache/apt/archives -type f -delete
 find /var/cache/debconf -iname '*old' -and -type f -delete
 
-find /var/lib/apt/list -type f -delete
+find /var/lib/apt/lists -type f -delete
 
 find /usr/share/locale -type f -delete
 
