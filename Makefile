@@ -1,10 +1,10 @@
-DEBIAN_VERSION ?= jessie
+DEBIAN_VERSION ?= stretch
 
-DEBIAN_TALL_VERSION ?= jessie
-DEBIAN_GRANDE_VERSION ?= jessie
-DEBIAN_VENTI_VERSION ?= jessie
+DEBIAN_TALL_VERSION ?= stretch
+DEBIAN_GRANDE_VERSION ?= stretch
+DEBIAN_VENTI_VERSION ?= stretch
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.5.4 1.6.3 1.7 1.7.1 1.8.3 1.9.1
+DEBIAN_VENTI_GOVERSIONS ?= 1.8.7 1.9.4
 
 REGISTRY ?= quay.io/gravitational
 
@@ -14,7 +14,7 @@ DOCKER_COMMON_OPTS = --rm --privileged \
 	-v $(shell pwd):/build:ro
 
 .PHONY: all
-all: debian-tall debian-grande debian-venti debian-venti-go
+all: images
 
 .PHONY: images
 images: debian-tall debian-grande debian-venti debian-venti-go
