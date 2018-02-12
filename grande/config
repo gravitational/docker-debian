@@ -1,4 +1,4 @@
-SUITE=${SUITE:-jessie}
+SUITE=${SUITE:-stretch}
 MIRROR=${MIRROR:-http://deb.debian.org/debian/}
 FLAVOUR=${FLAVOUR:-minimal}
 DUMBINIT_URL=${DUMBINIT_URL:-https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64.deb}

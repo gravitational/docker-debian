@@ -16,11 +16,21 @@ function bootstrap {
 
     # Packages required for building rootfs
     apt-get update
-    apt-get install -y cdebootstrap curl ca-certificates
+    apt-get install -y --no-install-recommends \
+        cdebootstrap curl ca-certificates
 
     cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
         "$SUITE" "$ROOTFS" "$MIRROR"
 
+    # Installing dumb-init
+    curl -o dumb-init.deb -L "$DUMBINIT_URL"
+    dpkg --root "$ROOTFS" -i dumb-init.deb
+
+    cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
+
+    echo 'Acquire::Language { "en"; };' >  "$ROOTFS/etc/apt/apt.conf.d/99translations"
+    echo 'APT::Install-Recommends "0";' >  "$ROOTFS/etc/apt/apt.conf.d/00apt"
+    echo 'APT::Install-Suggests "0";'   >> "$ROOTFS/etc/apt/apt.conf.d/00apt"
     # Disable sync after every package installed
     echo 'force-unsafe-io' > "$ROOTFS/etc/dpkg/dpkg.cfg.d/02apt-speedup"
 
@@ -30,39 +40,27 @@ function bootstrap {
     # Select default suite
     echo "APT::Default-Release \"$SUITE\";" > "$ROOTFS/etc/apt/apt.conf.d/01defaultrelease"
 
-    # Installing dumb-init
-    curl -o dumb-init.deb -L "$DUMBINIT_URL"
-    dpkg --root "$ROOTFS" -i dumb-init.deb
-
-    cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
-
     # Configure locales
     chroot "$ROOTFS" /usr/sbin/locale-gen
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
-    echo 'deb http://httpredir.debian.org/debian/ jessie main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ jessie-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://security.debian.org/ jessie/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://httpredir.debian.org/debian/ stretch main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://httpredir.debian.org/debian/ stretch-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.debian.org/ stretch/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
 
-    # Disabled -- compatibility issues
-    if false; then
-    # Temporary fix for adding libc from stretch
-    echo 'deb http://httpredir.debian.org/debian/ stretch main' > "$ROOTFS/etc/apt/sources.list.d/stretch.list"
-    chroot "$ROOTFS" /usr/bin/apt-get update
-    chroot "$ROOTFS" /usr/bin/apt-get install libc6 multiarch-support -t stretch --yes
-    rm "$ROOTFS/etc/apt/sources.list.d/stretch.list"
-    chroot "$ROOTFS" /usr/bin/apt-get update
-    fi
+    chroot "$ROOTFS" apt-get install -y localepurge
+    chroot "$ROOTFS" echo "localepurge localepurge/nopurge multiselect en,en_US.UTF-8" | debconf-set-selections
+    chroot "$ROOTFS" dpkg-reconfigure localepurge
+    chroot "$ROOTFS" localepurge
 }
 
 function cleanup {
     # Remove unused packages
     chroot "$ROOTFS" dpkg -P --force-remove-essential \
-        adduser \
         debconf-i18n \
         dmsetup \
         e2fslibs \
@@ -95,4 +93,3 @@ function main {
 }
 
 main
-
