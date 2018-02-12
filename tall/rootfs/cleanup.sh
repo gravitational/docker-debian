@@ -3,4 +3,3 @@
 set -e
 
 rm -rf -- /usr/share/
-
