@@ -4,7 +4,7 @@ DEBIAN_TALL_VERSION ?= stretch
 DEBIAN_GRANDE_VERSION ?= stretch
 DEBIAN_VENTI_VERSION ?= stretch
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.8.7 1.9.4
+DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9
 
 REGISTRY ?= quay.io/gravitational
 
@@ -22,16 +22,18 @@ images: debian-tall debian-grande debian-venti debian-venti-go
 .PHONY: debian-tall
 debian-tall:
 	-docker rmi debian-tall:$(DEBIAN_TALL_VERSION)
-	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
-		bash /build/tall/build.sh > tall.tar
+	docker run $(DOCKER_COMMON_OPTS) \
+		-e DEBIAN_VERSION=$(DEBIAN_TALL_VERSION) \
+		debian:$(DEBIAN_VERSION) bash /build/tall/build.sh > tall.tar
 	docker import \
 		tall.tar debian-tall:$(DEBIAN_TALL_VERSION)
 
 .PHONY: debian-grande
 debian-grande:
 	-docker rmi debian-grande:$(DEBIAN_GRANDE_VERSION)
-	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
-		bash /build/grande/build.sh > grande.tar
+	docker run $(DOCKER_COMMON_OPTS) \
+		-e DEBIAN_VERSION=$(DEBIAN_GRANDE_VERSION) \
+		debian:$(DEBIAN_VERSION) bash /build/grande/build.sh > grande.tar
 	docker import \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
 		grande.tar debian-grande:$(DEBIAN_GRANDE_VERSION)
@@ -39,8 +41,9 @@ debian-grande:
 .PHONY: debian-venti
 debian-venti:
 	-docker rmi debian-venti:$(DEBIAN_VENTI_VERSION)
-	docker run $(DOCKER_COMMON_OPTS) debian:$(DEBIAN_VERSION) \
-		bash /build/venti/build.sh > venti.tar
+	docker run $(DOCKER_COMMON_OPTS) \
+		-e DEBIAN_VERSION=$(DEBIAN_VENTI_VERSION) \
+		debian:$(DEBIAN_VERSION) bash /build/venti/build.sh > venti.tar
 	docker import \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
 		venti.tar debian-venti:$(DEBIAN_VENTI_VERSION)
