@@ -1,4 +1,4 @@
-FROM debian-venti:jessie
+FROM debian-venti:stretch
 MAINTAINER Gravitational Inc <ops@gravitational.com>
 
 ARG GOVERSION=1.5.4
