@@ -1,5 +1,5 @@
 SUITE=${SUITE:-stretch}
 MIRROR=${MIRROR:-http://deb.debian.org/debian/}
 FLAVOUR=${FLAVOUR:-minimal}
-DUMBINIT_URL=${DUMBINIT_URL:-https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64.deb}
+DUMBINIT_URL=${DUMBINIT_URL:-https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64.deb}
 PKG_INCLUDE=${PKG_INCLUDE:-apt-transport-https ca-certificates curl gcc git inetutils-ping iproute2 iptables less libc6-dev locales make openssh-client psmisc python python-dev python-pip rsync sudo unzip vim-tiny wget}
