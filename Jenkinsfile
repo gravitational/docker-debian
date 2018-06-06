@@ -2,8 +2,6 @@
 
 BRANCH = env.BRANCH
 node {
-    deleteDir()
-
     parallel "${BRANCH}": {
         stage('Checkout, build and push specified branch') {
             directoryName = BRANCH.replaceAll("/","_")
