@@ -1,6 +1,6 @@
 DEBIAN_VERSION ?= stretch
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9
+DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9 1.10.3
 
 REGISTRY ?= quay.io/gravitational
 
