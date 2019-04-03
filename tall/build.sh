@@ -14,6 +14,9 @@ function bootstrap {
     mkdir -p "$ROOTFS"
     mount -t tmpfs -o size="$TMPFS_SIZE" none "$ROOTFS"
 
+    echo 'deb http://httpredir.debian.org/debian/ jessie main contrib non-free' > /etc/apt/sources.list
+    echo 'deb http://security.debian.org/ jessie/updates main contrib non-free' >> /etc/apt/sources.list
+
     # Packages required for building rootfs
     apt-get update
     apt-get install -y --no-install-recommends curl ca-certificates
@@ -57,4 +60,3 @@ function main {
 }
 
 main
-
