@@ -65,5 +65,4 @@ push:
 		docker tag debian-grande:$(DEBIAN_VERSION) $(REGISTRY)/debian-grande:$$version && \
 		docker push $(REGISTRY)/debian-tall:$$version && \
 		docker push $(REGISTRY)/debian-grande:$$version && \
-		docker push $(REGISTRY)/debian-venti:$$version ; \
 	done
