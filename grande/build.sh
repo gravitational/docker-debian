@@ -14,6 +14,9 @@ function bootstrap {
     mkdir -p "$ROOTFS"
     mount -t tmpfs -o size="$TMPFS_SIZE" none "$ROOTFS"
 
+    echo 'deb http://httpredir.debian.org/debian/ jessie main contrib non-free' > /etc/apt/sources.list
+    echo 'deb http://security.debian.org/ jessie/updates main contrib non-free' >> /etc/apt/sources.list
+
     # Packages required for building rootfs
     apt-get update
     apt-get install -y cdebootstrap curl ca-certificates
@@ -30,6 +33,9 @@ function bootstrap {
     # Select default suite
     echo "APT::Default-Release \"$SUITE\";" > "$ROOTFS/etc/apt/apt.conf.d/01defaultrelease"
 
+    # Disable checking for valid dates
+    echo "Acquire::Check-Valid-Until \"false\";" >> "$ROOTFS/etc/apt/apt.conf.d/01checkvaliduntil"
+
     # Installing dumb-init
     curl -o dumb-init.deb -L "$DUMBINIT_URL"
     dpkg --root "$ROOTFS" -i dumb-init.deb
@@ -42,7 +48,6 @@ function bootstrap {
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
     echo 'deb http://httpredir.debian.org/debian/ jessie main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ jessie-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
     echo 'deb http://security.debian.org/ jessie/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
@@ -95,4 +100,3 @@ function main {
 }
 
 main
-
