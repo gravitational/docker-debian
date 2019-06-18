@@ -64,6 +64,5 @@ push:
 		docker tag ubuntu-tall:$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-tall:$$version && \
 		docker tag ubuntu-grande:$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-grande:$$version && \
 		docker push $(REGISTRY)/ubuntu-tall:$$version && \
-		docker push $(REGISTRY)/ubuntu-grande:$$version && \
-		docker push $(REGISTRY)/ubuntu-venti:$$version ; \
+		docker push $(REGISTRY)/ubuntu-grande:$$version ;\
 	done
