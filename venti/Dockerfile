@@ -1,4 +1,4 @@
-FROM debian-venti:stretch
+FROM ubuntu-venti:bionic
 MAINTAINER Gravitational Inc <ops@gravitational.com>
 
 ARG GOVERSION=1.5.4

@@ -17,9 +17,10 @@ function bootstrap {
     # Packages required for building rootfs
     apt-get update
     apt-get install -y --no-install-recommends \
-        cdebootstrap curl ca-certificates
+        cdebootstrap curl ca-certificates ubuntu-keyring
 
     cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
+        --keyring "/usr/share/keyrings/ubuntu-archive-keyring.gpg" \
         "$SUITE" "$ROOTFS" "$MIRROR"
 
     # Installing dumb-init
@@ -45,15 +46,21 @@ function bootstrap {
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://security.debian.org/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' main restricted' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates main restricted' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' multiverse' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates multiverse' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security main restricted' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security multiverse' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
 
     chroot "$ROOTFS" echo "localepurge localepurge/nopurge multiselect en,en_US.UTF-8" | debconf-set-selections
-    chroot "$ROOTFS" apt-get install -y localepurge
+    chroot "$ROOTFS" apt-get install -y localepurge ucf
     chroot "$ROOTFS" dpkg-reconfigure localepurge
     chroot "$ROOTFS" localepurge
 }
@@ -61,22 +68,8 @@ function bootstrap {
 function cleanup {
     # Remove unused packages
     chroot "$ROOTFS" dpkg -P --force-remove-essential \
-        debconf-i18n \
-        dmsetup \
-        e2fslibs \
-        e2fsprogs \
-        gcc-4.8-base \
-        init \
-        libcryptsetup4 \
-        libdevmapper1.02.1 \
-        liblocale-gettext-perl \
-        libtext-charwidth-perl \
-        libtext-iconv-perl \
-        libtext-wrapi18n-perl \
-        systemd \
-        systemd-sysv \
-        udev
-
+        e2fsprogs
+    
     # cleanup.sh must be called ONBUILD too, DRY
     chroot "$ROOTFS" /bin/sh -c 'test -f /cleanup.sh && sh /cleanup.sh'
 }

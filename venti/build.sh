@@ -12,13 +12,22 @@ function bootstrap {
     # Make in-ram new root
     rm -rf "$ROOTFS"
     mkdir -p "$ROOTFS"
+    mount -t tmpfs -o size="$TMPFS_SIZE" none "$ROOTFS"
 
     # Packages required for building rootfs
     apt-get update
     apt-get install -y --no-install-recommends \
-        cdebootstrap curl ca-certificates
+        cdebootstrap curl ca-certificates ubuntu-keyring
 
-    cdebootstrap --flavour="$FLAVOUR" "$SUITE" "$ROOTFS" "$MIRROR"
+    cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
+        --keyring "/usr/share/keyrings/ubuntu-archive-keyring.gpg" \
+        "$SUITE" "$ROOTFS" "$MIRROR"
+
+    # Installing dumb-init
+    curl -o dumb-init.deb -L "$DUMBINIT_URL"
+    dpkg --root "$ROOTFS" -i dumb-init.deb
+
+    cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
     echo 'Acquire::Language { "en"; };' >  "$ROOTFS/etc/apt/apt.conf.d/99translations"
     echo 'APT::Install-Recommends "0";' >  "$ROOTFS/etc/apt/apt.conf.d/00apt"
@@ -32,43 +41,46 @@ function bootstrap {
     # Select default suite
     echo "APT::Default-Release \"$SUITE\";" > "$ROOTFS/etc/apt/apt.conf.d/01defaultrelease"
 
-    # Installing packages
-    chroot "$ROOTFS" apt-get update
-    local pkgs=($PKG_INCLUDE)
-    chroot "$ROOTFS" apt-get install -y --no-install-recommends "${pkgs[@]}"
-
-    # Installing dumb-init
-    curl -o dumb-init.deb -L "$DUMBINIT_URL"
-    dpkg --root "$ROOTFS" -i dumb-init.deb
-
-    # Installing useful Python modules
-    chroot "$ROOTFS" /bin/bash -c 'pip install setuptools'
-    chroot "$ROOTFS" /bin/bash -c 'pip install awscli'
-
-    cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
-
-    # Install docker
-    curl -sSL https://get.docker.com/ | chroot "$ROOTFS" /bin/bash
-
     # Configure locales
     chroot "$ROOTFS" /usr/sbin/locale-gen
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://security.debian.org/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' main restricted' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates main restricted' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"' multiverse' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://archive.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-updates multiverse' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security main restricted' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security universe' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://security.ubuntu.com/ubuntu/ '"${UBUNTU_VERSION}"'-security multiverse' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
 
-    chroot "$ROOTFS" apt-get install -y localepurge
+    # Installing packages
+    local pkgs=($PKG_INCLUDE)
+    chroot "$ROOTFS" /usr/bin/apt-get install -y --no-install-recommends "${pkgs[@]}"
+
+    # Installing useful Python modules
+    chroot "$ROOTFS" /bin/bash -c 'pip install setuptools'
+    chroot "$ROOTFS" /bin/bash -c 'pip install awscli'
+
+    # Install docker
+    curl -sSL https://get.docker.com/ | chroot "$ROOTFS" /bin/bash
+
     chroot "$ROOTFS" echo "localepurge localepurge/nopurge multiselect en,en_US.UTF-8" | debconf-set-selections
+    chroot "$ROOTFS" apt-get install -y localepurge ucf
     chroot "$ROOTFS" dpkg-reconfigure localepurge
     chroot "$ROOTFS" localepurge
 }
 
 function cleanup {
+    # Remove unused packages
+    chroot "$ROOTFS" dpkg -P --force-remove-essential \
+        e2fsprogs
+    
     # cleanup.sh must be called ONBUILD too, DRY
     chroot "$ROOTFS" /bin/sh -c 'test -f /cleanup.sh && sh /cleanup.sh'
 }

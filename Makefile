@@ -1,52 +1,52 @@
-DEBIAN_VERSION ?= stretch
+UBUNTU_VERSION ?= bionic
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9 1.10.3 1.10.7 1.10.8 1.11.4 1.11.5
+UBUNTU_VENTI_GOVERSIONS ?= 1.8 1.9 1.10.3 1.10.7 1.10.8 1.11.4 1.11.5
 
 REGISTRY ?= quay.io/gravitational
 
 DOCKER_COMMON_OPTS = --rm --privileged \
 	-e DEBIAN_FRONTEND=noninteractive \
 	-e http_proxy=$(http_proxy) \
-	-e DEBIAN_VERSION=$(DEBIAN_VERSION) \
+	-e UBUNTU_VERSION=$(UBUNTU_VERSION) \
 	-v $(shell pwd):/build:ro
 
 .PHONY: all
 all: images
 
 .PHONY: images
-images: debian-tall debian-grande debian-venti debian-venti-go
+images: ubuntu-tall ubuntu-grande ubuntu-venti ubuntu-venti-go
 
-.PHONY: debian-tall
-debian-tall:
-	-docker rmi debian-tall:$(DEBIAN_VERSION)
+.PHONY: ubuntu-tall
+ubuntu-tall:
+	-docker rmi ubuntu-tall:$(UBUNTU_VERSION)
 	docker run $(DOCKER_COMMON_OPTS) \
-		debian:$(DEBIAN_VERSION) bash /build/tall/build.sh > tall.tar
+		ubuntu:$(UBUNTU_VERSION) bash /build/tall/build.sh > tall.tar
 	docker import \
-		tall.tar debian-tall:$(DEBIAN_VERSION)
+		tall.tar ubuntu-tall:$(UBUNTU_VERSION)
 
-.PHONY: debian-grande
-debian-grande:
-	-docker rmi debian-grande:$(DEBIAN_VERSION)
+.PHONY: ubuntu-grande
+ubuntu-grande:
+	-docker rmi ubuntu-grande:$(UBUNTU_VERSION)
 	docker run $(DOCKER_COMMON_OPTS) \
-		debian:$(DEBIAN_VERSION) bash /build/grande/build.sh > grande.tar
-	docker import \
-		--change 'ENV DEBIAN_FRONTEND noninteractive' \
-		grande.tar debian-grande:$(DEBIAN_VERSION)
-
-.PHONY: debian-venti
-debian-venti:
-	-docker rmi debian-venti:$(DEBIAN_VERSION)
-	docker run $(DOCKER_COMMON_OPTS) \
-		debian:$(DEBIAN_VERSION) bash /build/venti/build.sh > venti.tar
+		ubuntu:$(UBUNTU_VERSION) bash /build/grande/build.sh > grande.tar
 	docker import \
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
-		venti.tar debian-venti:$(DEBIAN_VERSION)
+		grande.tar ubuntu-grande:$(UBUNTU_VERSION)
 
-.PHONY: debian-venti-go
-debian-venti-go:
-	for goversion in $(DEBIAN_VENTI_GOVERSIONS) ; do \
-		docker rmi debian-venti:go$$goversion-$(DEBIAN_VERSION) || true ; \
-		docker build --build-arg GOVERSION=$$goversion -t debian-venti:go$$goversion-$(DEBIAN_VERSION) venti ; \
+.PHONY: ubuntu-venti
+ubuntu-venti:
+	-docker rmi ubuntu-venti:$(UBUNTU_VERSION)
+	docker run $(DOCKER_COMMON_OPTS) \
+		ubuntu:$(UBUNTU_VERSION) bash /build/venti/build.sh > venti.tar
+	docker import \
+		--change 'ENV DEBIAN_FRONTEND noninteractive' \
+		venti.tar ubuntu-venti:$(UBUNTU_VERSION)
+
+.PHONY: ubuntu-venti-go
+ubuntu-venti-go:
+	for goversion in $(UBUNTU_VENTI_GOVERSIONS) ; do \
+		docker rmi ubuntu-venti:go$$goversion-$(UBUNTU_VERSION) || true ; \
+		docker build --build-arg GOVERSION=$$goversion -t ubuntu-venti:go$$goversion-$(UBUNTU_VERSION) venti ; \
 	done
 
 .PHONY: syntax-check
@@ -55,15 +55,15 @@ syntax-check:
 
 .PHONY: push
 push:
-	for goversion in $(DEBIAN_VENTI_GOVERSIONS); do \
-		docker tag debian-venti:go$$goversion-$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) && \
-		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) ; \
+	for goversion in $(UBUNTU_VENTI_GOVERSIONS); do \
+		docker tag ubuntu-venti:go$$goversion-$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-venti:go$$goversion-$(UBUNTU_VERSION) && \
+		docker push $(REGISTRY)/ubuntu-venti:go$$goversion-$(UBUNTU_VERSION) ; \
 	done
-	docker tag debian-venti:$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VERSION)
-	for version in 0.0.2 $(DEBIAN_VERSION); do \
-		docker tag debian-tall:$(DEBIAN_VERSION) $(REGISTRY)/debian-tall:$$version && \
-		docker tag debian-grande:$(DEBIAN_VERSION) $(REGISTRY)/debian-grande:$$version && \
-		docker push $(REGISTRY)/debian-tall:$$version && \
-		docker push $(REGISTRY)/debian-grande:$$version && \
-		docker push $(REGISTRY)/debian-venti:$$version ; \
+	docker tag ubuntu-venti:$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-venti:$(UBUNTU_VERSION)
+	for version in 0.0.2 $(UBUNTU_VERSION); do \
+		docker tag ubuntu-tall:$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-tall:$$version && \
+		docker tag ubuntu-grande:$(UBUNTU_VERSION) $(REGISTRY)/ubuntu-grande:$$version && \
+		docker push $(REGISTRY)/ubuntu-tall:$$version && \
+		docker push $(REGISTRY)/ubuntu-grande:$$version && \
+		docker push $(REGISTRY)/ubuntu-venti:$$version ; \
 	done
