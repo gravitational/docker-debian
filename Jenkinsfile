@@ -19,6 +19,16 @@ node {
                 }
             }
         }
+    },
+    stretch: {
+        stage('Build and push stretch images') {
+            directoryName = "stretch"
+            dir("${directoryName}") {
+                if (BRANCH == "master") {
+                    buildAndPush("stretch")
+                }
+            }
+        }
     }
 }
 
