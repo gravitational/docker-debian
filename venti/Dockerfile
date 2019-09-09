@@ -1,4 +1,4 @@
-FROM debian-venti:stretch
+FROM debian-venti:buster
 MAINTAINER Gravitational Inc <ops@gravitational.com>
 
 ARG GOVERSION=1.5.4
@@ -13,4 +13,3 @@ RUN ( \
         go get github.com/tools/godep && \
         rm /go-linux.tar.gz ; \
     )
-
