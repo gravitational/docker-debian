@@ -2,7 +2,21 @@
 # -*- mode: bash; -*-
 
 # File: get_golang.sh
-# Copyright (C) 2019 Gravitational Inc.
+# Copyright 2019 Gravitational, Inc.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# */
+
 # Description: Find 3 latest major Golang releases
 
 # set -o xtrace
@@ -36,7 +50,7 @@ function find_latest_minor_release() {
     done
 }
 
-readarray releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | head -n 30 | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
+readarray releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
 
 latest_release=${releases_list[0]}
 latest_major_release=$(cut -d '.' -f 1 <<< ${releases_list[0]})"."$(cut -d . -f 2 <<< ${releases_list[0]})
