@@ -1,6 +1,8 @@
-DEBIAN_VERSION ?= stretch
+DEBIAN_VERSION ?= buster
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9 1.10.3 1.10.7 1.10.8 1.11.4 1.11.5 1.11.13 1.12.9
+DEBIAN_VENTI_GOVERSIONS ?= 1.11.13 1.12.9 1.13
+DEBIAN_VENTI_GOVERSIONS_LATEST ?= $(shell ./get_golang_versions.sh)
+DEBIAN_VENTI_ALL_GOVERSIONS := $(sort $(DEBIAN_VENTI_GOVERSIONS_LATEST) $(DEBIAN_VENTI_GOVERSIONS))
 
 REGISTRY ?= quay.io/gravitational
 
@@ -44,7 +46,7 @@ debian-venti:
 
 .PHONY: debian-venti-go
 debian-venti-go:
-	for goversion in $(DEBIAN_VENTI_GOVERSIONS) ; do \
+	for goversion in $(DEBIAN_VENTI_ALL_GOVERSIONS) ; do \
 		docker rmi debian-venti:go$$goversion-$(DEBIAN_VERSION) || true ; \
 		docker build --build-arg GOVERSION=$$goversion -t debian-venti:go$$goversion-$(DEBIAN_VERSION) venti ; \
 	done
@@ -55,12 +57,12 @@ syntax-check:
 
 .PHONY: push
 push:
-	for goversion in $(DEBIAN_VENTI_GOVERSIONS); do \
+	for goversion in $(DEBIAN_VENTI_ALL_GOVERSIONS); do \
 		docker tag debian-venti:go$$goversion-$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) && \
 		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) ; \
 	done
 	docker tag debian-venti:$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VERSION)
-	for version in 0.0.2 $(DEBIAN_VERSION); do \
+	for version in 0.0.3 $(DEBIAN_VERSION); do \
 		docker tag debian-tall:$(DEBIAN_VERSION) $(REGISTRY)/debian-tall:$$version && \
 		docker tag debian-grande:$(DEBIAN_VERSION) $(REGISTRY)/debian-grande:$$version && \
 		docker push $(REGISTRY)/debian-tall:$$version && \
