@@ -62,7 +62,7 @@ push:
 		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) ; \
 	done
 	docker tag debian-venti:$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VERSION)
-	for version in 0.0.3 $(DEBIAN_VERSION); do \
+	for version in 0.0.3 latest $(DEBIAN_VERSION); do \
 		docker tag debian-tall:$(DEBIAN_VERSION) $(REGISTRY)/debian-tall:$$version && \
 		docker tag debian-grande:$(DEBIAN_VERSION) $(REGISTRY)/debian-grande:$$version && \
 		docker push $(REGISTRY)/debian-tall:$$version && \
