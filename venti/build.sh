@@ -37,11 +37,8 @@ function bootstrap {
     local pkgs=($PKG_INCLUDE)
     chroot "$ROOTFS" apt-get install -y --no-install-recommends "${pkgs[@]}"
 
-    # Installing dumb-init
-    curl -o dumb-init.deb -L "$DUMBINIT_URL"
-    dpkg --root "$ROOTFS" -i dumb-init.deb
-
     # Installing useful Python modules
+    chroot "$ROOTFS" /bin/bash -c 'pip install wheel'
     chroot "$ROOTFS" /bin/bash -c 'pip install setuptools'
     chroot "$ROOTFS" /bin/bash -c 'pip install awscli'
 
@@ -55,17 +52,12 @@ function bootstrap {
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://security.debian.org/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian-security/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
-
-    chroot "$ROOTFS" apt-get install -y localepurge
-    chroot "$ROOTFS" echo "localepurge localepurge/nopurge multiselect en,en_US.UTF-8" | debconf-set-selections
-    chroot "$ROOTFS" dpkg-reconfigure localepurge
-    chroot "$ROOTFS" localepurge
 }
 
 function cleanup {

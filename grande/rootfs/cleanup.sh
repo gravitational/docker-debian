@@ -2,8 +2,6 @@
 
 set -e
 
-localepurge
-
 apt-get autoclean
 apt-get clean
 
