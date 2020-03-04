@@ -1,6 +1,6 @@
 DEBIAN_VERSION ?= stretch
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.8 1.9 1.10.3 1.10.7 1.10.8 1.11.4 1.11.5 1.11.13 1.12.9
+DEBIAN_VENTI_GOVERSIONS ?= 1.12.9 1.12.17 1.13.8 1.14
 
 REGISTRY ?= quay.io/gravitational
 
@@ -59,7 +59,6 @@ push:
 		docker tag debian-venti:go$$goversion-$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) && \
 		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) ; \
 	done
-	docker tag debian-venti:$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VERSION)
 	for version in 0.0.2 $(DEBIAN_VERSION); do \
 		docker tag debian-tall:$(DEBIAN_VERSION) $(REGISTRY)/debian-tall:$$version && \
 		docker tag debian-grande:$(DEBIAN_VERSION) $(REGISTRY)/debian-grande:$$version && \
