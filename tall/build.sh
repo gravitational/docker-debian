@@ -34,6 +34,9 @@ function bootstrap {
 
     chroot "$ROOTFS/" /bin/busybox --install /bin
 
+    # Remove wget binary which sometimes gets flagged in security audits
+    chroot "$ROOTFS/" /bin/rm /bin/wget
+
     # Collecting certificates from ca-certificates package to one file
     find "$ROOTFS/usr/share/ca-certificates" -name '*.crt' -print0 \
         | xargs -0 cat > "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
