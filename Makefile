@@ -1,16 +1,17 @@
 DEBIAN_VERSION ?= buster
 
-DEBIAN_VENTI_GOVERSIONS ?= 1.11.13 1.12.9 1.13
-DEBIAN_VENTI_GOVERSIONS_LATEST ?= $(shell ./get_golang_versions.sh)
-DEBIAN_VENTI_ALL_GOVERSIONS := $(sort $(DEBIAN_VENTI_GOVERSIONS_LATEST) $(DEBIAN_VENTI_GOVERSIONS))
-
 REGISTRY ?= quay.io/gravitational
+
+DEBIAN_VENTI_GOVERSIONS ?= 1.11.13 1.12.9 1.13
 
 DOCKER_COMMON_OPTS = --rm --privileged \
 	-e DEBIAN_FRONTEND=noninteractive \
 	-e http_proxy=$(http_proxy) \
 	-e DEBIAN_VERSION=$(DEBIAN_VERSION) \
 	-v $(shell pwd):/build:ro
+
+GO_VERSIONFILE:=go-versions.txt
+INTERMEDIATE_GO_VERSIONFILE:=go-versions-partial.txt
 
 .PHONY: all
 all: images
@@ -44,23 +45,31 @@ debian-venti:
 		--change 'ENV DEBIAN_FRONTEND noninteractive' \
 		venti.tar debian-venti:$(DEBIAN_VERSION)
 
+.PHONY: go-versions
+go-versions:
+	rm -f $(INTERMEDIATE_GO_VERSIONFILE)
+	echo $(DEBIAN_VENTI_GOVERSIONS) | tr " " "\n" >> $(INTERMEDIATE_GO_VERSIONFILE)
+	./get_golang_versions.sh >> $(INTERMEDIATE_GO_VERSIONFILE)
+	sort $(INTERMEDIATE_GO_VERSIONFILE) | uniq > $(GO_VERSIONFILE)
+	rm -f $(INTERMEDIATE_GO_VERSIONFILE)
+
 .PHONY: debian-venti-go
-debian-venti-go:
-	for goversion in $(DEBIAN_VENTI_ALL_GOVERSIONS) ; do \
+debian-venti-go: go-versions
+	while read -r goversion; do \
 		docker rmi debian-venti:go$$goversion-$(DEBIAN_VERSION) || true ; \
 		docker build --build-arg GOVERSION=$$goversion -t debian-venti:go$$goversion-$(DEBIAN_VERSION) venti ; \
-	done
+	done < $(GO_VERSIONFILE)
 
 .PHONY: syntax-check
 syntax-check:
 	find . -name '*.sh' | xargs shellcheck
 
 .PHONY: push
-push:
-	for goversion in $(DEBIAN_VENTI_ALL_GOVERSIONS); do \
+push: go-versions
+	while read -r goversion; do \
 		docker tag debian-venti:go$$goversion-$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) && \
 		docker push $(REGISTRY)/debian-venti:go$$goversion-$(DEBIAN_VERSION) ; \
-	done
+	done < $(GO_VERSIONFILE)
 	docker tag debian-venti:$(DEBIAN_VERSION) $(REGISTRY)/debian-venti:$(DEBIAN_VERSION)
 	for version in 0.0.3 $(DEBIAN_VERSION); do \
 		docker tag debian-tall:$(DEBIAN_VERSION) $(REGISTRY)/debian-tall:$$version && \
