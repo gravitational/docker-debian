@@ -58,6 +58,7 @@ if version_gt $bash_version 4.3; then
 else
     read -a releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
 fi
+[[ ${#releases_list[@]} -lt 3 ]] && { >&2 echo "parse error: not enough releases found on https://golang.org/dl/"; exit 1; }
 
 latest_release=${releases_list[0]}
 latest_major_release=$(cut -d '.' -f 1 <<< ${releases_list[0]})"."$(cut -d . -f 2 <<< ${releases_list[0]})
