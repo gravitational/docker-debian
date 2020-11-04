@@ -47,6 +47,9 @@ function bootstrap {
 
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
+    # /tmp is 755 in the base image. Prevent issues when using non-root users.
+    chroot "$ROOTFS" chmod 1777 /tmp
+
     # Install docker
     curl -sSL https://get.docker.com/ | chroot "$ROOTFS" /bin/bash
 
