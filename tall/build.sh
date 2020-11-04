@@ -20,13 +20,11 @@ function bootstrap {
         cdebootstrap curl ca-certificates
 
     apt-get download \
+        dumb-init \
         busybox \
         libc6 \
         ca-certificates \
         libgcc1
-
-    # Installing dumb-init and downloaded debs
-    curl -o dumb-init.deb -L "$DUMBINIT_URL"
 
     for pkg in *.deb; do
         dpkg-deb --fsys-tarfile "$pkg" | tar -xf - -C "$ROOTFS";

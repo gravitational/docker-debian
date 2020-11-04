@@ -22,10 +22,6 @@ function bootstrap {
     cdebootstrap --flavour="$FLAVOUR" --include="$BOOTSTRAP_INCLUDE" \
         "$SUITE" "$ROOTFS" "$MIRROR"
 
-    # Installing dumb-init
-    curl -o dumb-init.deb -L "$DUMBINIT_URL"
-    dpkg --root "$ROOTFS" -i dumb-init.deb
-
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
     echo 'Acquire::Language { "en"; };' >  "$ROOTFS/etc/apt/apt.conf.d/99translations"
@@ -45,29 +41,24 @@ function bootstrap {
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
     chroot "$ROOTFS" /usr/sbin/dpkg-reconfigure locales
 
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://httpredir.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
-    echo 'deb http://security.debian.org/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian/ '"${DEBIAN_VERSION}"' main contrib non-free' > "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian/ '"${DEBIAN_VERSION}"'-updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
+    echo 'deb http://deb.debian.org/debian-security/ '"${DEBIAN_VERSION}"'/updates main contrib non-free' >> "$ROOTFS/etc/apt/sources.list"
 
     chroot "$ROOTFS" /usr/bin/apt-get update
     chroot "$ROOTFS" /usr/bin/apt-get dist-upgrade --yes
-
-    chroot "$ROOTFS" echo "localepurge localepurge/nopurge multiselect en,en_US.UTF-8" | debconf-set-selections
-    chroot "$ROOTFS" apt-get install -y localepurge
-    chroot "$ROOTFS" dpkg-reconfigure localepurge
-    chroot "$ROOTFS" localepurge
 }
 
 function cleanup {
     # Remove unused packages
     chroot "$ROOTFS" dpkg -P --force-remove-essential \
+        cdebootstrap-helper-rc.d \
         debconf-i18n \
         dmsetup \
         e2fslibs \
         e2fsprogs \
-        gcc-4.8-base \
         init \
-        libcryptsetup4 \
+        libcryptsetup12 \
         libdevmapper1.02.1 \
         liblocale-gettext-perl \
         libtext-charwidth-perl \
