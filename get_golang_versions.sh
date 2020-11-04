@@ -54,10 +54,11 @@ function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$
 
 bash_version=$(echo $BASH_VERSION | cut -d '.' -f 1,2)
 if version_gt $bash_version 4.3; then
-    readarray releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
+    readarray releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP '\/dl/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
 else
-    read -a releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
+    read -a releases_list <<< $(wget -qO- https://golang.org/dl/ | grep -oP '\/dl\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | sed -nre 's/^[^0-9]*(([0-9]+\.)*[0-9]+).*/\1/p' | uniq )
 fi
+[[ ${#releases_list[@]} -lt 3 ]] && { >&2 echo "parse error: not enough releases found on https://golang.org/dl/"; exit 1; }
 
 latest_release=${releases_list[0]}
 latest_major_release=$(cut -d '.' -f 1 <<< ${releases_list[0]})"."$(cut -d . -f 2 <<< ${releases_list[0]})
