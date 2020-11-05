@@ -24,6 +24,9 @@ function bootstrap {
 
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
+    # /tmp is 755 in the base image. Prevent issues when using non-root users.
+    chroot "$ROOTFS" chmod 1777 /tmp
+
     echo 'Acquire::Language { "en"; };' >  "$ROOTFS/etc/apt/apt.conf.d/99translations"
     echo 'APT::Install-Recommends "0";' >  "$ROOTFS/etc/apt/apt.conf.d/00apt"
     echo 'APT::Install-Suggests "0";'   >> "$ROOTFS/etc/apt/apt.conf.d/00apt"
