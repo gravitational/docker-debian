@@ -3,6 +3,10 @@ kind: pipeline
 type: kubernetes
 name: pr
 
+trigger:
+  event:
+    - pull_request
+
 steps:
   - name: wait for docker
     image: docker
