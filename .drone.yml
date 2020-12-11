@@ -68,8 +68,14 @@ steps:
         path: /var/run
   - name: publish images
     image: docker:git
+    environment:
+      USERNAME:
+        from_secret: quay_username
+      PASSWORD:
+        from_secret: quay_password
     commands:
-      - apk add --no-cache make
+      - apk add --no-cache make bash
+      - docker login -u="$USERNAME" -p="$PASSWORD" quay.io
       - make push
     volumes:
       - name: dockersock
