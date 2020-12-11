@@ -15,7 +15,7 @@ steps:
   - name: build images
     image: docker:git
     commands:
-      - apk add --no-cache make
+      - apk add --no-cache make bash
       - make all
     volumes:
       - name: dockersock
