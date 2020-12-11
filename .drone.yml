@@ -16,7 +16,57 @@ steps:
     image: docker:git
     commands:
       - apk add --no-cache make bash
-      - make all
+      - make images
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+services:
+  - name: run docker daemon
+    image: docker:dind
+    privileged: true
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+volumes:
+  - name: dockersock
+    temp: {}
+
+---
+kind: pipeline
+type: kubernetes
+name: publish
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
+    - cron
+
+steps:
+  - name: wait for docker
+    image: docker
+    commands:
+      - timeout 15s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+      - docker version
+    volumes:
+      - name: dockersock
+        path: /var/run
+  - name: build images
+    image: docker:git
+    commands:
+      - apk add --no-cache make bash
+      - make images
+    volumes:
+      - name: dockersock
+        path: /var/run
+  - name: publish images
+    image: docker:git
+    commands:
+      - apk add --no-cache make
+      - make push
     volumes:
       - name: dockersock
         path: /var/run
