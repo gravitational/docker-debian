@@ -1,0 +1,94 @@
+---
+kind: pipeline
+type: kubernetes
+name: pr
+
+trigger:
+  event:
+    - pull_request
+
+steps:
+  - name: wait for docker
+    image: docker
+    commands:
+      - timeout 15s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+      - docker version
+    volumes:
+      - name: dockersock
+        path: /var/run
+  - name: build images
+    image: docker:git
+    commands:
+      - apk add --no-cache make bash
+      - make images
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+services:
+  - name: run docker daemon
+    image: docker:dind
+    privileged: true
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+volumes:
+  - name: dockersock
+    temp: {}
+
+---
+kind: pipeline
+type: kubernetes
+name: publish
+
+trigger:
+  branch:
+    - stretch
+  event:
+    - push
+    - cron
+
+steps:
+  - name: wait for docker
+    image: docker
+    commands:
+      - timeout 15s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+      - docker version
+    volumes:
+      - name: dockersock
+        path: /var/run
+  - name: build images
+    image: docker:git
+    commands:
+      - apk add --no-cache make bash
+      - make images
+    volumes:
+      - name: dockersock
+        path: /var/run
+  - name: publish images
+    image: docker:git
+    environment:
+      USERNAME:
+        from_secret: quay_username
+      PASSWORD:
+        from_secret: quay_password
+    commands:
+      - apk add --no-cache make bash
+      - docker login -u="$USERNAME" -p="$PASSWORD" quay.io
+      - make push
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+services:
+  - name: run docker daemon
+    image: docker:dind
+    privileged: true
+    volumes:
+      - name: dockersock
+        path: /var/run
+
+volumes:
+  - name: dockersock
+    temp: {}
