@@ -48,7 +48,7 @@ function bootstrap {
     cp -r -t "$ROOTFS" "$SCRIPT_DIR"/rootfs/*
 
     # Install docker
-    curl -sSL https://get.docker.com/ | chroot "$ROOTFS" /bin/bash
+    cat "$SCRIPT_DIR/install-docker.sh" | chroot "$ROOTFS" /bin/bash
 
     # Configure locales
     chroot "$ROOTFS" /usr/sbin/locale-gen
