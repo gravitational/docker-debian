@@ -49,9 +49,6 @@ function bootstrap {
     # /tmp is 755 in the base image. Prevent issues when using non-root users.
     chroot "$ROOTFS" chmod 1777 /tmp
 
-    # Install docker
-    curl -sSL https://get.docker.com/ | chroot "$ROOTFS" /bin/bash
-
     # Configure locales
     chroot "$ROOTFS" /usr/sbin/locale-gen
     chroot "$ROOTFS" /usr/sbin/locale-gen en_US.UTF-8
