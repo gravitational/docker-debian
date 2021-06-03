@@ -70,9 +70,9 @@ steps:
     image: docker:git
     environment:
       USERNAME:
-        from_secret: quay_username
+        from_secret: QUAY_USERNAME
       PASSWORD:
-        from_secret: quay_password
+        from_secret: QUAY_PASSWORD
     commands:
       - apk add --no-cache make bash
       - docker login -u="$USERNAME" -p="$PASSWORD" quay.io
@@ -94,6 +94,6 @@ volumes:
     temp: {}
 ---
 kind: signature
-hmac: 167e19939015966aa31499d4bac67ecf932972e012a80e0756bda143def3ab4e
+hmac: c71d7b42f066847e115795fa5213d5bf9ea3e569f9ef0ef2882247901b2eb199
 
 ...
